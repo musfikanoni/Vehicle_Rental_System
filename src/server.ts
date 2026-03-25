@@ -1,13 +1,19 @@
 import express, { Request, Response } from "express";
 import { useRoute } from "./modules/user/user.route";
-import { initDB } from "./database/db";
+import { initDB } from "./config/db";
+import { authRoute } from "./modules/auth/auth.route";
 
 const app = express();
 app.use(express.json());
 
-initDB()
+initDB();
 
+//http://localhost:5000/users => http://localhost:5000/api/v1/users
+//http://localhost:5000/auth => http://localhost:5000/api/v1/signin
+
+app.use("/api/v1/signup", useRoute);
 app.use("/api/v1/users", useRoute);
+app.use("/api/v1/auth", authRoute);
 
 app.get("/", (req: Request, res: Response) => {
   res.status(200).json({

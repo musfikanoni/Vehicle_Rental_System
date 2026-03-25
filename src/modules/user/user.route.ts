@@ -1,9 +1,11 @@
 import { Router } from "express";
-import { pool } from "../../database/db";
 import { userController } from "./user.controller";
+import auth from "../../middleware/auth";
 
-const router = Router()
+const router = Router();
 
-router.post('/', userController.createUser)
+router.post("/", userController.createUser);
+router.get("/", auth(), userController.getAllUser);
+// router.get("/", auth(), userController.getAllUser);
 
-export const useRoute = router
+export const useRoute = router;
