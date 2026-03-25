@@ -22,7 +22,7 @@ const getAllUser = async (req: Request, res: Response) => {
     const result = await userServices.getAllUserFromDB();
     return res.status(201).json({
       success: true,
-      message: "Users retrieved successfully",
+      message: "Users received successfully",
       data: result.rows,
     });
   } catch (error: any) {

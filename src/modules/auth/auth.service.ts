@@ -24,13 +24,14 @@ const signinUserIntoDB = async (email: string, password: string) => {
     id: user.rows[0].id,
     name: user.rows[0].name,
     email: user.rows[0].email,
-    phone: user.rows[0].pnone,
+    role: user.rows[0].role,
+    phone: user.rows[0].phone,
   };
 
   // const secret  = "KMUFsIDTnFmyG3nMiGM6H9FNFUROf3wh7SmqJp-QV30"
   const secret  = `${config.secret_key}`
   const token = jwt.sign(jwtPayload, secret, { expiresIn: "7d" })
-  // delete user.rows[0].password;
+  delete user.rows[0].password;
   return { token, user: user.rows[0] };
 };
 
