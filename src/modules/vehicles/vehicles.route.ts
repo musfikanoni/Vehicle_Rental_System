@@ -7,7 +7,7 @@ import auth from "../../middleware/auth";
 const router = Router();
 
 router.post("/", auth(Roles.admin), vehicleController.createVehicle)
-// router.get("/", auth(Roles.admin), userController.getAllUser);
+router.get("/", vehicleController.getAllVehicles);
 // router.get("/", auth(), userController.getAllUser);
 
 export const vehicleRoute = router;
