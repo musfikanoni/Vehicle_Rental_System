@@ -13,7 +13,7 @@ const auth = (...roles: ("admin" | "customer")[]) => {
     const decoded = jwt.verify(token, secret) as JwtPayload;
     console.log(decoded);
     const user = await pool.query(
-      `
+            `
             SELECT * FROM users WHERE email=$1
             `,
       [decoded.email],
