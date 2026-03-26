@@ -9,4 +9,4 @@ router.post("/", userController.createUser);
 router.get("/", auth(Roles.admin), userController.getAllUser);
 // router.get("/", auth(), userController.getAllUser);
 
-export const useRoute = router;
+export const userRoute = router;

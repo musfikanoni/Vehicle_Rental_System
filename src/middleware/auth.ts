@@ -3,7 +3,7 @@ import jwt, { JwtPayload } from "jsonwebtoken";
 import config from "../config";
 import { pool } from "../config/db";
 
-const auth = (...roles: ('admin' | 'user')[]) => {  
+const auth = (...roles: ('admin' | 'customer')[]) => {  
     return async (req: Request, res: Response, next: NextFunction) => {
         const token = req.headers.authorization; 
         if(!token){
