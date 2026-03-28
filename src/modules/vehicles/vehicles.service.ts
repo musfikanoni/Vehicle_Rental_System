@@ -83,15 +83,10 @@ const updateVehicleFromDB = async (
   return vehicle;
 };
 
-
 const deleteVehicleFromDB = async (vehicleId: string) => {
   const vehicle = await pool.query(`DELETE FROM vehicles WHERE id = $1`, [
     vehicleId,
   ]);
-
-  // if (vehicle.rowCount === 0) {
-  //   throw new Error("Vehicle not found!");
-  // }
 
   return vehicle;
 };
