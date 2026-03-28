@@ -1,10 +1,8 @@
 import { Pool } from "pg";
 import config from ".";
 
-
-
 export const pool = new Pool({
-  connectionString: `${config.connection_str}`
+  connectionString: `${config.connection_str}`,
 });
 
 export const initDB = async () => {
@@ -19,7 +17,7 @@ export const initDB = async () => {
         created_at TIMESTAMP DEFAULT NOW(),
         updated_at TIMESTAMP DEFAULT NOW()
         )
-        `)
+        `);
 
   await pool.query(`
         CREATE TABLE IF NOT EXISTS vehicles(
@@ -32,6 +30,22 @@ export const initDB = async () => {
         created_at TIMESTAMP DEFAULT NOW(),
         updated_at TIMESTAMP DEFAULT NOW()
         )
-    `)
-        console.log("Database connected");
+    `);
+
+  await pool.query(`
+        CREATE TABLE IF NOT EXISTS Bookings(
+          id SERIAL PRIMARY KEY,
+          customer_id INT REFERENCES users(id) ON DELETE CASCADE,
+          vehicle_id INT REFERENCES vehicles(id) ON DELETE CASCADE,
+          rent_start_date DATE NOT NULL,
+          rent_end_date DATE NOT NULL,
+          total_price NUMERIC(10,2) NOT NULL CHECK (total_price > 0),
+          status VARCHAR(20) NOT NULL CHECK (status IN ('active', 'cancelled', 'returned')),
+          created_at TIMESTAMP DEFAULT NOW(),
+          updated_at TIMESTAMP DEFAULT NOW(),
+
+          CHECK (rent_end_date > rent_start_date)
+        )
+      `);
+  console.log("Database connected");
 };

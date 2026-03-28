@@ -3,6 +3,7 @@ import { userRoute } from "./modules/user/user.route";
 import { initDB } from "./config/db";
 import { authRoute } from "./modules/auth/auth.route";
 import { vehicleRoute } from "./modules/vehicles/vehicles.route";
+import { bookingRoute } from "./modules/bookings/bookings.route";
 
 const app = express();
 app.use(express.json());
@@ -16,6 +17,7 @@ app.use("/api/v1/signup", userRoute);
 app.use("/api/v1/users", userRoute);
 app.use("/api/v1/auth", authRoute);
 app.use("/api/v1/vehicles", vehicleRoute);
+app.use("/api/v1/bookings", bookingRoute);
 // app.use("/api/v1/vehicles/:vehicleId", vehicleRoute);
 
 app.get("/", (req: Request, res: Response) => {
