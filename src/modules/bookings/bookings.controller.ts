@@ -24,7 +24,7 @@ const createBooking = async (req: Request, res: Response) => {
 const getAllBookings = async (req: Request, res: Response) => {
   try {
     const user = req.user;
-    
+
     if (!user) {
       return res.status(401).json({
         success: false,
@@ -86,64 +86,44 @@ const getAllBookings = async (req: Request, res: Response) => {
   }
 };
 
-// const updateVehicle = async (req: Request, res: Response) => {
-//   try {
-//     const { vehicleId } = req.params;
-//     const payload = { ...req.body };
+const updateBooking = async (req: Request, res: Response) => {
+  try {
+    const { bookingId } = req.params;
+    const { status } = req.body;
+    const user = req.user;
 
-//     const vehicle = await vehicleServices.updateVehicleFromDB(
-//       vehicleId as string,
-//       payload,
-//     );
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized",
+      });
+    }
 
-//     return res.status(200).json({
-//       success: true,
-//       message: "Vehicle updated successfully",
-//          data: {
-//         ...vehicle.rows[0],
-//       },
-//     });
-//   } catch (error: any) {
-//     return res.status(500).json({
-//       success: false,
-//       message: error.message,
-//     });
-//   }
-// };
+    const booking = await bookingServices.updateBookingFromDB(
+      bookingId as string,
+      status,
+      user
+    );
 
-// const deleteVehicle = async (req: Request, res: Response) => {
-//   try {
-//     const { vehicleId } = req.params;
+    return res.status(200).json({
+      success: true,
+      message:
+        status === "cancelled"
+          ? "Booking cancelled successfully"
+          : "Booking marked as returned. Vehicle is now available",
+      data: booking,
+    });
+  } catch (error: any) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
 
-//     const vehicle = await vehicleServices.deleteVehicleFromDB(
-//       vehicleId as string,
-//     );
-
-//     if (vehicle.rowCount === 0) {
-//       return res.status(404).json({
-//         success: false,
-//         message: "Vehicle not found",
-//       });
-//     }
-
-//     return res.status(200).json({
-//       success: true,
-//       message: "Vehicle deleted successfully",
-//     });
-//   }
-
-//   catch (error: any) {
-//     return res.status(500).json({
-//       success: false,
-//       message: error.message,
-//     });
-//   }
-// };
 
 export const bookingController = {
   createBooking,
   getAllBookings,
-  //   getVehicleById,
-  //   updateVehicle,
-  //   deleteVehicle
+  updateBooking
 };

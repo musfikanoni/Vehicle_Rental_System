@@ -3,6 +3,10 @@ import { pool } from "../../config/db";
 
 const createUserIntoDB = async (payload: Record<string, unknown>) => {
   const { name, email, password, role, phone } = payload;
+
+  if ((password as string).length < 6) {
+    throw new Error("Password must be at least 6 characters");
+  }
   const hashPassword = await bcrypt.hash(password as string, 12);
   const result = await pool.query(
     `
@@ -10,6 +14,8 @@ const createUserIntoDB = async (payload: Record<string, unknown>) => {
     `,
     [name, email, hashPassword, role, phone],
   );
+
+
 
   delete result.rows[0].password;
   return result;

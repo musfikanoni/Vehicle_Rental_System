@@ -116,58 +116,76 @@ const getAllBookingsFromDB = async (user: any) => {
   return result.rows;
 };
 
-// const getVehicleByIdFromDB = async (vehicleId: string) => {
-//   const vehicle = await pool.query(`SELECT * FROM vehicles WHERE id = $1`, [
-//     vehicleId,
-//   ]);
 
-//   if (vehicle.rows.length === 0) {
-//     throw new Error("Vehicle not found!");
-//   }
 
-//   return vehicle;
-// };
+const updateBookingFromDB = async (
+  bookingId: string,
+  status: string,
+  user: any
+) => {
+  const bookingRes = await pool.query(
+    `SELECT * FROM bookings WHERE id = $1`,
+    [bookingId]
+  );
 
-// const updateVehicleFromDB = async (
-//   vehicleId: string,
-//   payload: Record<string, unknown>,
-// ) => {
-//   let {
-//     vehicle_name,
-//     type,
-//     registration_number,
-//     daily_rent_price,
-//     availability_status,
-//   } = payload;
+  if (bookingRes.rows.length === 0) {
+    throw new Error("Booking not found!");
+  }
 
-//   const vehicle = await pool.query(
-//     `UPDATE vehicles SET vehicle_name=$1, type=$2, registration_number=$3, daily_rent_price=$4, availability_status=$5 WHERE id=$6 RETURNING *`,
-//     [
-//       vehicle_name,
-//       type,
-//       registration_number,
-//       daily_rent_price,
-//       availability_status,
-//       vehicleId,
-//     ],
-//   );
+  const booking = bookingRes.rows[0];
 
-//   if (vehicle.rows.length === 0) {
-//     throw new Error("Vehicle not found!");
-//   }
 
-//   return vehicle;
-// };
+  if (user.role === "customer") {
+    if (booking.customer_id !== user.id) {
+      throw new Error("You are not authorized to cancel this booking");
+    }
 
-// const deleteVehicleFromDB = async (vehicleId: string) => {
-//   const vehicle = await pool.query(`DELETE FROM vehicles WHERE id = $1`, [
-//     vehicleId,
-//   ]);
+    if (status !== "cancelled") {
+      throw new Error("Customers can only cancel bookings");
+    }
+  }
 
-//   return vehicle;
-// };
+  if (user.role === "admin") {
+    if (status !== "returned") {
+      throw new Error("Admin can only mark as returned");
+    }
+  }
+
+
+  const updatedBooking = await pool.query(
+    `UPDATE bookings 
+     SET status = $1, updated_at = NOW() 
+     WHERE id = $2 
+     RETURNING *`,
+    [status, bookingId]
+  );
+
+  if (status === "returned") {
+    await pool.query(
+      `UPDATE vehicles 
+       SET availability_status = 'available' 
+       WHERE id = $1`,
+      [booking.vehicle_id]
+    );
+  }
+
+
+  if (status === "returned") {
+    return {
+      ...updatedBooking.rows[0],
+      vehicle: {
+        availability_status: "available",
+      },
+    };
+  }
+
+  return updatedBooking.rows[0];
+};
+
+
 
 export const bookingServices = {
   createBookingIntoDB,
   getAllBookingsFromDB,
+  updateBookingFromDB,
 };

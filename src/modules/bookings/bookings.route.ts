@@ -9,8 +9,6 @@ const router = Router();
 
 router.post("/", auth(Roles.admin, Roles.customer), bookingController.createBooking)
 router.get("/", auth(Roles.admin, Roles.customer), bookingController.getAllBookings);
-// router.get("/:vehicleId", vehicleController.getVehicleById);
-// router.put("/:vehicleId", auth(Roles.admin), vehicleController.updateVehicle);
-// router.delete("/:vehicleId", auth(Roles.admin), vehicleController.deleteVehicle);
+router.put("/:bookingId", auth(Roles.admin, Roles.customer), bookingController.updateBooking);
 
 export const bookingRoute = router;
