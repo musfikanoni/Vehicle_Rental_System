@@ -61,19 +61,60 @@ const createBookingIntoDB = async (payload: Record<string, unknown>) => {
   };
 };
 
-// const getAllVehiclesFromDB = async () => {
-//   const vehicles = await pool.query(
-//     `
-//       SELECT id, vehicle_name, type, registration_number, daily_rent_price, availability_status FROM vehicles
-//     `,
-//   );
+const getAllBookingsFromDB = async (user: any) => {
+  let query = "";
+  let values: any[] = [];
 
-//   if (vehicles.rows.length === 0) {
-//     throw new Error("Vehicles not found!");
-//   }
+  if (user.role === "admin") {
+    query = `
+      SELECT 
+        b.id,
+        b.customer_id,
+        b.vehicle_id,
+        b.rent_start_date,
+        b.rent_end_date,
+        b.total_price,
+        b.status,
 
-//   return vehicles;
-// };
+        u.name AS customer_name,
+        u.email AS customer_email,
+
+        v.vehicle_name,
+        v.registration_number
+
+      FROM bookings b
+      JOIN users u ON b.customer_id = u.id
+      JOIN vehicles v ON b.vehicle_id = v.id
+    `;
+  } else {
+    query = `
+      SELECT 
+        b.id,
+        b.vehicle_id,
+        b.rent_start_date,
+        b.rent_end_date,
+        b.total_price,
+        b.status,
+
+        v.vehicle_name,
+        v.registration_number,
+        v.type
+
+      FROM bookings b
+      JOIN vehicles v ON b.vehicle_id = v.id
+      WHERE b.customer_id = $1
+    `;
+    values = [user.id];
+  }
+
+  const result = await pool.query(query, values);
+
+  if (result.rows.length === 0) {
+    throw new Error("Bookings not found!");
+  }
+
+  return result.rows;
+};
 
 // const getVehicleByIdFromDB = async (vehicleId: string) => {
 //   const vehicle = await pool.query(`SELECT * FROM vehicles WHERE id = $1`, [
@@ -128,8 +169,5 @@ const createBookingIntoDB = async (payload: Record<string, unknown>) => {
 
 export const bookingServices = {
   createBookingIntoDB,
-  //   getAllVehiclesFromDB,
-  //   getVehicleByIdFromDB,
-  //   updateVehicleFromDB,
-  //   deleteVehicleFromDB
+  getAllBookingsFromDB,
 };

@@ -2,7 +2,6 @@ import { Request, Response } from "express";
 import { bookingServices } from "./bookings.service";
 
 const createBooking = async (req: Request, res: Response) => {
-
   try {
     const booking = await bookingServices.createBookingIntoDB(req.body);
 
@@ -22,51 +21,70 @@ const createBooking = async (req: Request, res: Response) => {
   }
 };
 
-// const getAllVehicles = async (req: Request, res: Response) => {
-//   try {
-//     const vehicles = await vehicleServices.getAllVehiclesFromDB();
+const getAllBookings = async (req: Request, res: Response) => {
+  try {
+    const user = req.user;
+    
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: "Unauthorized",
+      });
+    }
 
-//     const formattedData = vehicles.rows.map((vehicle) => ({
-//       ...vehicle,
-//       daily_rent_price: Number(vehicle.daily_rent_price),
-//     }));
+    const bookings = await bookingServices.getAllBookingsFromDB(user);
 
-//     return res.status(201).json({
-//       success: true,
-//       message: "Vehicles retrieved successfully",
-//       data: formattedData,
-//     });
-//   } catch (error: any) {
-//     return res.status(500).json({
-//       success: true,
-//       message: error.message,
-//     });
-//   }
-// };
+    let formattedData;
 
-// const getVehicleById = async (req: Request, res: Response) => {
-//   try {
-//     const { vehicleId } = req.params;
+    if (user.role === "admin") {
+      formattedData = bookings.map((b: any) => ({
+        id: b.id,
+        customer_id: b.customer_id,
+        vehicle_id: b.vehicle_id,
+        rent_start_date: b.rent_start_date,
+        rent_end_date: b.rent_end_date,
+        total_price: b.total_price,
+        status: b.status,
+        customer: {
+          name: b.customer_name,
+          email: b.customer_email,
+        },
+        vehicle: {
+          vehicle_name: b.vehicle_name,
+          registration_number: b.registration_number,
+        },
+      }));
+    } else {
+      formattedData = bookings.map((b: any) => ({
+        id: b.id,
+        vehicle_id: b.vehicle_id,
+        rent_start_date: b.rent_start_date,
+        rent_end_date: b.rent_end_date,
+        total_price: b.total_price,
+        status: b.status,
+        vehicle: {
+          vehicle_name: b.vehicle_name,
+          registration_number: b.registration_number,
+          type: b.type,
+        },
+      }));
+    }
 
-//     const vehicle = await vehicleServices.getVehicleByIdFromDB(
-//       vehicleId as string,
-//     );
-
-//     return res.status(200).json({
-//       success: true,
-//       message: "Vehicle retrieved successfully",
-//       data: {
-//         ...vehicle.rows[0],
-//         daily_rent_price: Number(vehicle.rows[0].daily_rent_price),
-//       },
-//     });
-//   } catch (error: any) {
-//     return res.status(500).json({
-//       success: false,
-//       message: error.message,
-//     });
-//   }
-// };
+    return res.status(200).json({
+      success: true,
+      message:
+        user.role === "admin"
+          ? "Bookings retrieved successfully"
+          : "Your bookings retrieved successfully",
+      data: formattedData,
+    });
+  } catch (error: any) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
 
 // const updateVehicle = async (req: Request, res: Response) => {
 //   try {
@@ -93,7 +111,6 @@ const createBooking = async (req: Request, res: Response) => {
 //   }
 // };
 
-
 // const deleteVehicle = async (req: Request, res: Response) => {
 //   try {
 //     const { vehicleId } = req.params;
@@ -113,7 +130,7 @@ const createBooking = async (req: Request, res: Response) => {
 //       success: true,
 //       message: "Vehicle deleted successfully",
 //     });
-//   } 
+//   }
 
 //   catch (error: any) {
 //     return res.status(500).json({
@@ -125,8 +142,8 @@ const createBooking = async (req: Request, res: Response) => {
 
 export const bookingController = {
   createBooking,
-//   getAllVehicles,
-//   getVehicleById,
-//   updateVehicle,
-//   deleteVehicle
+  getAllBookings,
+  //   getVehicleById,
+  //   updateVehicle,
+  //   deleteVehicle
 };
