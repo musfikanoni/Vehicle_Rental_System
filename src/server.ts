@@ -10,19 +10,18 @@ app.use(express.json());
 
 initDB();
 
-//http://localhost:5000/users => http://localhost:5000/api/v1/users
-//http://localhost:5000/auth => http://localhost:5000/api/v1/signin
+
 
 app.use("/api/v1/signup", userRoute);
 app.use("/api/v1/users", userRoute);
 app.use("/api/v1/auth", authRoute);
 app.use("/api/v1/vehicles", vehicleRoute);
 app.use("/api/v1/bookings", bookingRoute);
-// app.use("/api/v1/vehicles/:vehicleId", vehicleRoute);
+
 
 app.get("/", (req: Request, res: Response) => {
   res.status(200).json({
-    message: "this is the root route",
+    message: "This is the root route",
     path: req.path,
   });
 });
